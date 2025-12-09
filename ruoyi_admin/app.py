@@ -29,11 +29,11 @@ def create_app():
     init_app(app)
     # 注册测试模块
     try:
-        from ruoyi_test import init_app as test_init_app
-        test_init_app(app)
-        print("Test module registered successfully")
+        from ruoyi_manage import init_app as nanage_init_app
+        nanage_init_app(app)
+        print("Manage module registered successfully")
     except ImportError:
-        print("测试模块未找到或未正确配置")
+        print("Manage模块未找到或未正确配置")
 
     # 所有扩展和模块完成初始化后，发送应用完成信号
     app_completed.send(app)

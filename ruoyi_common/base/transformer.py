@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-# @Author  : YY
-
 from types import NoneType
 from typing import Callable, List, Optional
 from datetime import datetime
@@ -31,7 +28,13 @@ def to_datetime(format=None) -> Callable[[str | NoneType, ValidationInfo], datet
         format (str): 日期格式. Defaults to '%Y-%m-%d %H:%M:%S'.
     """
     if format is None:
-        formats: List[str] = [DateUtil.YYYY_MM_DD_HH_MM_SS, DateUtil.YYYY_MM_DD]
+        # 默认支持常见的年月日格式，以及仅到月份的格式，方便 Excel 导入
+        formats: List[str] = [
+            DateUtil.YYYY_MM_DD_HH_MM_SS,
+            DateUtil.YYYY_MM_DD,
+            "%Y.%m",
+            "%Y-%m",
+        ]
     elif isinstance(format, (list, tuple, set)):
         formats = list(format)
     else:
@@ -87,6 +90,24 @@ def str_to_int(value:str|NoneType, info:ValidationInfo) \
                 return int(value)
             else:
                 raise ValueError(f"Invalid str format, cannot convert to int: {value}")
+    return value
+
+
+def str_to_float(value:str|NoneType, info:ValidationInfo) -> float|NoneType:
+    """
+    将字符串转换为浮点数；空值直接返回
+    """
+    if value is None or value == "":
+        return value
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        stripped = value.strip()
+        try:
+            return float(stripped)
+        except ValueError:
+            # 格式化不了就返回 None，避免抛出验证错误
+            return None
     return value
 
 

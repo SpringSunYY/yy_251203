@@ -81,7 +81,17 @@ class QueryReqParser(BaseReqParser):
         g.criterian_meta = self.criterian_meta
 
     def validate_request(self) -> Dict:
-        return request.args.to_dict()
+        data = request.args.to_dict()
+        # 兼容前端传参形式 params[xxx]=yyy
+        params_dict = {}
+        for key, val in list(data.items()):
+            if key.startswith("params[") and key.endswith("]"):
+                inner = key[len("params["):-1]
+                params_dict[inner] = val
+                data.pop(key, None)
+        if params_dict:
+            data["params"] = params_dict
+        return data
 
     def data(self) -> Dict:
         data = self.validate_request().copy()

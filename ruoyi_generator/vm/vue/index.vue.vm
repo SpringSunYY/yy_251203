@@ -428,8 +428,8 @@ export default {
 {%- endif %}
   {%- set attr_name = capitalize_first(column.java_field) %}
       if (null != this.dateRange{{ attr_name }} && '' != this.dateRange{{ attr_name }}.toString()) {
-        this.queryParams.params["begin{{ column.java_field }}"] = this.dateRange{{ attr_name }}[0];
-        this.queryParams.params["end{{ column.java_field }}"] = this.dateRange{{ attr_name }}[1];
+        this.queryParams.params["begin{{ attr_name ) }}"] = this.dateRange{{ attr_name }}[0];
+        this.queryParams.params["end{{ attr_name ) }}"] = this.dateRange{{ attr_name }}[1];
       }
 {%- endif %}
 {%- endfor %}

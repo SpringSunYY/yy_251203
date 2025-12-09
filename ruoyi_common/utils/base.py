@@ -768,6 +768,50 @@ class DateUtil:
         """
         return datetime.now().strftime("%Y%m%d")
 
+    @classmethod
+    def format_datetime(cls, market_time):
+        """
+        格式化日期时间为"%Y-%m-%d %H:%M:%S"格式
+        
+        Args:
+            market_time: 日期时间字符串，如 '2023.09', '2023-09', '2023-09-01', 等
+            
+        Returns:
+            str: 格式化后的日期字符串，格式为"%Y-%m"
+        """
+        if not market_time:
+            return None
+
+        # 如果已经是datetime对象，则直接格式化
+        if isinstance(market_time, datetime):
+            return market_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        # 处理字符串占位值（如 0000-00-00 00:00:00），视为无效日期
+        if isinstance(market_time, str):
+            stripped = market_time.strip()
+            if stripped in {"0000-00-00", "0000-00-00 00:00:00", "0000-00-00 00:00", "0000.00"}:
+                return None
+            market_time = stripped
+
+        # 支持的日期格式列表
+        formats = [
+            "%Y.%m",           # 2023.09
+            "%Y-%m",           # 2023-09
+            "%Y-%m-%d",        # 2023-09-01
+            "%Y-%m-%d %H:%M:%S" # 2023-09-01 12:00:00
+        ]
+        
+        # 尝试解析各种格式
+        for fmt in formats:
+            try:
+                dt = datetime.strptime(str(market_time), fmt)
+                return dt.strftime("%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                continue
+        
+        # 如果所有格式都失败，抛出异常
+        raise ValueError(f"无法解析日期格式: {market_time}")
+
 
 class FileUploadUtil:
 
@@ -811,7 +855,7 @@ class FileUploadUtil:
     def check_allowed(cls, file:FileStorage, allowed_extensions:List[str]):
         '''
         文件大小、类型校验（对标若依的 FileUploadUtils.assertAllowed）
-       
+
         Args:
             file(FileStorage): 文件对象
             allowed_extensions(List[str]): 允许的扩展名列表
@@ -852,10 +896,10 @@ class FileUploadUtil:
         '''
         提取文件名，仿照若依：
         日期路径/原文件名_序列号.扩展名
-        
+
         Args:
             file(FileStorage): 文件对象
-        
+
         Returns:
             str: 文件名
         '''
@@ -1394,7 +1438,7 @@ class ExcelUtil:
         meta = column_meta.get(header)
         if not meta:
             return value
-        
+
         access = meta.get("access")
         # 如果设置了字典类型，将标签转换为字典值（导入时将标签转换为值）
         if access and access.dict_type and value not in (None, ""):
@@ -1406,7 +1450,7 @@ class ExcelUtil:
             except Exception:
                 # 如果字典转换失败，使用原值
                 pass
-        
+
         target_type = meta.get("target_type")
         if target_type is None:
             target_type = self._resolve_field_type(meta["path"])
