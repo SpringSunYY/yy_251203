@@ -98,14 +98,9 @@
                 </div>
               </div>
 
-              <div class="info-item scores">
-                <i class="el-icon-data-analysis"></i>
-                <span class="label">评分：</span>
-                <div class="score-line">
-                  <span>综合 {{ item.overall != null ? item.overall : '—' }}</span>
-                  <span>外观 {{ item.exterior != null ? item.exterior : '—' }}</span>
-                  <span>内饰 {{ item.interior != null ? item.interior : '—' }}</span>
-                </div>
+              <div class=" scores" v-if="builderChartData(item).length>1">
+                <RadarTooltipCharts :chart-name="item.overall" :max="5" :chart-data="builderChartData(item)"
+                                    background-color="rgba(50,50,50,0.3)"/>
               </div>
 
               <div class="detail-link">
@@ -133,9 +128,11 @@
 
 <script>
 import {listCar} from "@/api/manage/car";
+import RadarTooltipCharts from "@/components/Echarts/RadarTooltipCharts.vue";
 
 export default {
   name: "CarList",
+  components: {RadarTooltipCharts},
   dicts: ["manage_model_type", "manage_energy_type"],
   data() {
     return {
@@ -173,6 +170,22 @@ export default {
     }
   },
   methods: {
+    builderChartData(item) {
+      if (!item) {
+        return [];
+      }
+      if (!item.overall || !item.exterior || !item.power || !item.handling || !item.space || !item.configuration) {
+        return [];
+      }
+      return [
+        {name: '外观', value: item.exterior, tooltip: '外观评分'},
+        {name: '内饰', value: item.interior, tooltip: '内饰评分'},
+        {name: '动力', value: item.power, tooltip: '动力评分'},
+        {name: '操控', value: item.handling, tooltip: '操控评分'},
+        {name: '空间', value: item.space, tooltip: '空间评分'},
+        {name: '配置', value: item.configuration, tooltip: '油耗评分'},
+      ]
+    },
     buildQuery() {
       const params = {...this.queryParams, params: {}};
       if (this.dateRangeMarketTime && this.dateRangeMarketTime.length === 2) {
@@ -402,6 +415,10 @@ export default {
   color: #f56c6c;
   font-weight: 700;
   font-size: 16px;
+}
+
+.scores {
+  height: 300px;
 }
 
 .tag-line {
