@@ -1,31 +1,33 @@
 <template>
   <div class="dashboard-editor-container">
 
-    <panel-group @handleSetLineChartData="handleSetLineChartData" />
+    <panel-group @handleSetLineChartData="handleSetLineChartData"/>
 
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData" />
+      <line-chart :chart-data="lineChartData"/>
     </el-row>
 
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <PieBarCharts />
+          <PieBarCharts/>
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <BarPieCharts />
+          <BarPieCharts/>
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <bar-chart />
+          <bar-chart/>
         </div>
       </el-col>
     </el-row>
 
-
+    <div style="height: 100vh;width: 100vw">
+      <RelationRoundCharts/>
+    </div>
   </div>
 </template>
 
@@ -37,6 +39,7 @@ import PieChart from './dashboard/PieChart'
 import BarChart from './dashboard/BarChart'
 import PieBarCharts from "@/components/Echarts/PieBarCharts.vue";
 import BarPieCharts from "@/components/Echarts/BarPieCharts.vue";
+import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
 
 const lineChartData = {
   newVisitis: {
@@ -60,6 +63,7 @@ const lineChartData = {
 export default {
   name: 'Index',
   components: {
+    RelationRoundCharts,
     BarPieCharts,
     PieBarCharts,
     PanelGroup,
@@ -95,7 +99,7 @@ export default {
   }
 }
 
-@media (max-width:1024px) {
+@media (max-width: 1024px) {
   .chart-wrapper {
     padding: 8px;
   }
