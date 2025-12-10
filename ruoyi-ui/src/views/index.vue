@@ -15,7 +15,7 @@
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <pie-chart />
+          <BarPieCharts />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
@@ -36,6 +36,7 @@ import RaddarChart from './dashboard/RaddarChart'
 import PieChart from './dashboard/PieChart'
 import BarChart from './dashboard/BarChart'
 import PieBarCharts from "@/components/Echarts/PieBarCharts.vue";
+import BarPieCharts from "@/components/Echarts/BarPieCharts.vue";
 
 const lineChartData = {
   newVisitis: {
@@ -59,6 +60,7 @@ const lineChartData = {
 export default {
   name: 'Index',
   components: {
+    BarPieCharts,
     PieBarCharts,
     PanelGroup,
     LineChart,
@@ -89,6 +91,7 @@ export default {
     background: #fff;
     padding: 16px 16px 0;
     margin-bottom: 32px;
+    height: 500px;
   }
 }
 
