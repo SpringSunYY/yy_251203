@@ -28,6 +28,9 @@
     <div style="height: 100vh;width: 100vw">
       <RelationRoundCharts/>
     </div>
+    <div style="height: 80vh;width: 100%">
+      <LineBatchZoomCharts/>
+    </div>
   </div>
 </template>
 
@@ -40,6 +43,7 @@ import BarChart from './dashboard/BarChart'
 import PieBarCharts from "@/components/Echarts/PieBarCharts.vue";
 import BarPieCharts from "@/components/Echarts/BarPieCharts.vue";
 import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
+import LineBatchZoomCharts from "@/components/Echarts/LineBatchZoomCharts.vue";
 
 const lineChartData = {
   newVisitis: {
@@ -63,6 +67,7 @@ const lineChartData = {
 export default {
   name: 'Index',
   components: {
+    LineBatchZoomCharts,
     RelationRoundCharts,
     BarPieCharts,
     PieBarCharts,
