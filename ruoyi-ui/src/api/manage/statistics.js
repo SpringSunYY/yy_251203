@@ -18,3 +18,12 @@ export function carBrandStatistics(query) {
     params: query
   })
 }
+
+//汽车价格统计/car/price
+export function carPriceStatistics(query) {
+  return request({
+    url: '/manage/statistics/car/price',
+    method: 'get',
+    params: query
+  })
+}

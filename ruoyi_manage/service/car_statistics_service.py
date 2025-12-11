@@ -1,8 +1,9 @@
 from typing import List
 
+from ruoyi_manage.domain.entity import CarInfo
 from ruoyi_manage.domain.statistics.vo import StatisticsVo
 from ruoyi_manage.domain.statistics.vo.statistics_vo import PieBarStatisticsVo
-from ruoyi_manage.mapper import CarStatisticsMapper
+from ruoyi_manage.mapper import CarStatisticsMapper, CarInfoMapper
 
 
 class CarStatisticsService:
@@ -45,3 +46,25 @@ class CarStatisticsService:
             )
             rank += 1
         return results
+
+    def get_car_price_statistics(self, request) -> List[StatisticsVo]:
+        ###汽车价格分析
+        # 先获取到所有的汽车
+        pos = CarInfoMapper.select_car_info_list(CarInfo())
+        if not pos:
+            return []
+        ###根据价格分类，十万以下，10万到20万，20万到30万，30万到40万，40万以上
+        ###计算其总销量,每个范围的,数据保存单位是万
+        results = {"10万以下": 0, "10万到20万": 0, "20万到30万": 0, "30万到40万": 0, "40万以上": 0}
+        for po in pos:
+            if po.max_price < 10:
+                results["10万以下"] += po.sales_count
+            elif 10 <= po.max_price < 20:
+                results["10万到20万"] += po.sales_count
+            elif 20 <= po.max_price < 30:
+                results["20万到30万"] += po.sales_count
+            elif 30 <= po.max_price < 40:
+                results["30万到40万"] += po.sales_count
+            elif po.max_price >= 40:
+                results["40万以上"] += po.sales_count
+        return [StatisticsVo(name=key, value=value) for key, value in results.items()]

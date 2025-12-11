@@ -29,3 +29,13 @@ def get_car_sales_rank_statistics(request: CarStatisticsRequest):
 def get_car_brand_statistics(request: CarStatisticsRequest):
     # 直接传递 request 参数，无需转换
     return AjaxResponse.from_success(data=car_statistics_service.get_car_brand_statistics(request))
+
+
+"""汽车价格分析"""
+@gen.route('/car/price', methods=['GET'])
+@QueryValidator()
+@PreAuthorize(HasPerm('manage:car:statistics'))
+@JsonSerializer()
+def get_car_price_statistics(request: CarStatisticsRequest):
+    # 直接传递 request 参数，无需转换
+    return AjaxResponse.from_success(data=car_statistics_service.get_car_price_statistics(request))
