@@ -27,3 +27,13 @@ export function carPriceStatistics(query) {
     params: query
   })
 }
+
+
+//汽车评分统计/car/score
+export function carScoreStatistics(query) {
+  return request({
+    url: '/manage/statistics/car/score',
+    method: 'get',
+    params: query
+  })
+}

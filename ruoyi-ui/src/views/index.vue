@@ -22,7 +22,7 @@
       <RelationRoundCharts/>
     </div>
     <div style="height: 80vh;width: 100%">
-      <LineBatchZoomCharts/>
+      <LineBatchZoomCharts :chart-data="carScore" :chart-name="carScoreName"/>
     </div>
   </div>
 </template>
@@ -37,7 +37,12 @@ import PieBarCharts from "@/components/Echarts/PieBarCharts.vue";
 import BarPieCharts from "@/components/Echarts/BarPieCharts.vue";
 import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
 import LineBatchZoomCharts from "@/components/Echarts/LineBatchZoomCharts.vue";
-import {carBrandStatistics, carPriceStatistics, carSalesRankStatistics} from "@/api/manage/statistics";
+import {
+  carBrandStatistics,
+  carPriceStatistics,
+  carSalesRankStatistics,
+  carScoreStatistics
+} from "@/api/manage/statistics";
 
 
 export default {
@@ -62,6 +67,8 @@ export default {
       carBrandName: "汽车品牌销量分析",
       carPrice: [],
       carPriceName: "汽车价格分析",
+      carScore:{},
+      carScoreName: "汽车评分分析",
       query: {
         brandName: null,
         seriesName: null,
@@ -74,6 +81,7 @@ export default {
     this.getSalesRankData()
     this.getCarBrand()
     this.getCarPrice()
+    this.getCarScore()
   },
   methods: {
     getSalesRankData() {
@@ -93,6 +101,11 @@ export default {
     getCarPrice() {
       carPriceStatistics().then(res => {
         this.carPrice = res.data
+      })
+    },
+    getCarScore() {
+      carScoreStatistics().then(res => {
+        this.carScore = res.data
       })
     }
   }

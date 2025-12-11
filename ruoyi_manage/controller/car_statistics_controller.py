@@ -39,3 +39,14 @@ def get_car_brand_statistics(request: CarStatisticsRequest):
 def get_car_price_statistics(request: CarStatisticsRequest):
     # 直接传递 request 参数，无需转换
     return AjaxResponse.from_success(data=car_statistics_service.get_car_price_statistics(request))
+
+
+###汽车评分维度分析
+"""汽车评分维度分析"""
+@gen.route('/car/score', methods=['GET'])
+@QueryValidator()
+@PreAuthorize(HasPerm('manage:car:statistics'))
+@JsonSerializer()
+def get_car_score_statistics(request: CarStatisticsRequest):
+    # 直接传递 request 参数，无需转换
+    return AjaxResponse.from_success(data=car_statistics_service.get_car_score_statistics(request))

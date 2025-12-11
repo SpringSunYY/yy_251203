@@ -1,8 +1,9 @@
+from decimal import Decimal, InvalidOperation, ROUND_CEILING, ROUND_FLOOR
 from typing import List
 
 from ruoyi_manage.domain.entity import CarInfo
 from ruoyi_manage.domain.statistics.vo import StatisticsVo
-from ruoyi_manage.domain.statistics.vo.statistics_vo import PieBarStatisticsVo
+from ruoyi_manage.domain.statistics.vo.statistics_vo import PieBarStatisticsVo, BatchLineStatisticsVo, BatchLineItem, StatisticsVo
 from ruoyi_manage.mapper import CarStatisticsMapper, CarInfoMapper
 
 
@@ -68,3 +69,96 @@ class CarStatisticsService:
             elif po.max_price >= 40:
                 results["40万以上"] += po.sales_count
         return [StatisticsVo(name=key, value=value) for key, value in results.items()]
+
+    def get_car_score_statistics(self, request) -> BatchLineStatisticsVo:
+        """
+        汽车评分维度分析
+        - 汇总所有维度的评分，取全局最小/最大评分（向下/向上取一位小数）
+        - names：从最小到最大，步进 0.1 的评分档位字符串（如 2.5, 2.6, ...）
+        - 每个维度生成一个 BatchLineItem，values 为各档位销量求和（按向下取一位小数归档）
+        """
+        #综合评分
+        overall_pos = CarStatisticsMapper.get_car_score_statistics(request, "overall")
+        #外观评分
+        exterior_pos = CarStatisticsMapper.get_car_score_statistics(request, "exterior")
+        #内饰评分
+        interior_pos = CarStatisticsMapper.get_car_score_statistics(request, "interior")
+        #空间评分
+        space_pos = CarStatisticsMapper.get_car_score_statistics(request, "space")
+        #操控评分
+        handling_pos = CarStatisticsMapper.get_car_score_statistics(request, "handling")
+        #舒适性评分
+        comfort_pos = CarStatisticsMapper.get_car_score_statistics(request, "comfort")
+        #动力评分
+        power_pos = CarStatisticsMapper.get_car_score_statistics(request, "power")
+        #配置评分
+        configuration_pos = CarStatisticsMapper.get_car_score_statistics(request, "configuration")
+        score_series_map = {
+            "综合评分": overall_pos,
+            "外观评分": exterior_pos,
+            "内饰评分": interior_pos,
+            "空间评分": space_pos,
+            "操控评分": handling_pos,
+            "舒适性评分": comfort_pos,
+            "动力评分": power_pos,
+            "配置评分": configuration_pos,
+        }
+
+        def safe_decimal(value) -> Decimal | None:
+            if value is None:
+                return None
+            try:
+                return Decimal(str(value))
+            except (InvalidOperation, ValueError, TypeError):
+                return None
+
+        # 收集全局评分最小、最大值
+        score_values: List[Decimal] = []
+        for series in score_series_map.values():
+            for item in series:
+                decimal_score = safe_decimal(item.name)
+                if decimal_score is not None:
+                    score_values.append(decimal_score)
+
+        if not score_values:
+            # 无数据时给出 0.0-5.0 的默认刻度，values 全 0，避免前端空数组
+            default_names = [f"{Decimal(i) / Decimal(10):.1f}" for i in range(0, 51)]  # 0.0 -> 5.0
+            empty_values = [0 for _ in default_names]
+            batch_values: List[BatchLineItem] = []
+            for label in score_series_map.keys():
+                batch_values.append(BatchLineItem(name=label, values=list(empty_values)))
+            return BatchLineStatisticsVo(names=default_names, values=batch_values)
+
+        step = Decimal("0.1")
+        min_score = min(score_values)
+        max_score = max(score_values)
+
+        # 向下/向上一位小数确定边界
+        start = (min_score * 10).to_integral_value(rounding=ROUND_FLOOR) / Decimal(10)
+        end = (max_score * 10).to_integral_value(rounding=ROUND_CEILING) / Decimal(10)
+
+        # names 升序 0.1 步进
+        names: List[str] = []
+        current = start
+        while current <= end:
+            names.append(f"{current:.1f}")
+            current += step
+
+        # 将评分按向下取一位小数归档并求和销量
+        def bucketize(series):
+            bucket_dict = {name: 0 for name in names}
+            for item in series:
+                decimal_score = safe_decimal(item.name)
+                if decimal_score is None:
+                    continue
+                bucket = (decimal_score * 10).to_integral_value(rounding=ROUND_FLOOR) / Decimal(10)
+                bucket_name = f"{bucket:.1f}"
+                if bucket_name in bucket_dict:
+                    bucket_dict[bucket_name] += int(item.value)
+            return [bucket_dict.get(name, 0) for name in names]
+
+        batch_values: List[BatchLineItem] = []
+        for label, series in score_series_map.items():
+            batch_values.append(BatchLineItem(name=label, values=bucketize(series)))
+
+        return BatchLineStatisticsVo(names=names, values=batch_values)

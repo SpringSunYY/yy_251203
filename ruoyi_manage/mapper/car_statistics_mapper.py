@@ -7,6 +7,7 @@ from ruoyi_manage.domain.entity import CarInfo
 from ruoyi_manage.domain.po import CarInfoPo
 from ruoyi_manage.domain.statistics.dto import CarStatisticsRequest
 from ruoyi_manage.domain.statistics.po import StatisticsPo
+from ruoyi_manage.domain.statistics.vo import StatisticsVo
 
 
 class CarStatisticsMapper:
@@ -76,7 +77,52 @@ class CarStatisticsMapper:
             result = db.session.execute(stmt).mappings().all()
             if not result:
                 return []
-            return [StatisticsPo(value=item.value, name=item.name) for item in result]
+            return [StatisticsVo(value=item.value, name=item.name) for item in result]
         except Exception as e:
             print(f"获取汽车品牌统计出错: {e}")
+            return []
+
+    @staticmethod
+    def get_car_score_statistics(request, score="overall")-> List[StatisticsPo]:
+        """查询评分
+              select sum(sales_count) as value, tb_car_info.overall as name
+                from tb_car_info where overall is not null
+                group by name
+                order by name asc;
+        """
+        try:
+            # 支持的评分字段列表
+            valid_score_fields = [
+                "overall",    # 综合评分
+                "exterior",   # 外观评分
+                "interior",   # 内饰评分
+                "space",      # 空间评分
+                "handling",   # 操控评分
+                "comfort",    # 舒适性评分
+                "power",      # 动力评分
+                "configuration"  # 配置评分
+            ]
+
+            # 如果传入的score不在有效字段列表中，默认使用overall
+            if score not in valid_score_fields:
+                score = "overall"
+
+            # 根据传入的score参数选择对应的列
+            score_column = getattr(CarInfoPo, score)
+
+            stmt = select(
+                func.sum(CarInfoPo.sales_count).label("value"),
+                score_column.label("name")
+            ).select_from(CarInfoPo).where(score_column.is_not(None)).group_by(score_column).order_by(db.asc("name"))
+
+            # 创建查询条件
+            stmt = CarStatisticsMapper.builder_query_params(request, stmt)
+
+            result = db.session.execute(stmt).mappings().all()
+            if not result:
+                return []
+            # name 可能是 Decimal，转为字符串以匹配 StatisticsPo 的类型定义
+            return [StatisticsPo(value=item.value, name=str(item.name)) for item in result]
+        except Exception as e:
+            print(f"获取汽车评分统计出错: {e}")
             return []
