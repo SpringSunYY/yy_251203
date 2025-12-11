@@ -83,7 +83,7 @@ class CarStatisticsMapper:
             return []
 
     @staticmethod
-    def get_car_score_statistics(request, score="overall")-> List[StatisticsPo]:
+    def get_car_score_statistics(request, score="overall") -> List[StatisticsPo]:
         """查询评分
               select sum(sales_count) as value, tb_car_info.overall as name
                 from tb_car_info where overall is not null
@@ -93,13 +93,13 @@ class CarStatisticsMapper:
         try:
             # 支持的评分字段列表
             valid_score_fields = [
-                "overall",    # 综合评分
-                "exterior",   # 外观评分
-                "interior",   # 内饰评分
-                "space",      # 空间评分
-                "handling",   # 操控评分
-                "comfort",    # 舒适性评分
-                "power",      # 动力评分
+                "overall",  # 综合评分
+                "exterior",  # 外观评分
+                "interior",  # 内饰评分
+                "space",  # 空间评分
+                "handling",  # 操控评分
+                "comfort",  # 舒适性评分
+                "power",  # 动力评分
                 "configuration"  # 配置评分
             ]
 
@@ -125,4 +125,31 @@ class CarStatisticsMapper:
             return [StatisticsPo(value=item.value, name=str(item.name)) for item in result]
         except Exception as e:
             print(f"获取汽车评分统计出错: {e}")
+            return []
+
+    @staticmethod
+    def get_car_model_type_statistics(request):
+        """
+        获取汽车车型统计
+        select sum(sales_count) as value, model_type as name
+        from tb_car_info where model_type is not null
+        group by name
+        order by value desc
+        """
+        try:
+            stmt = (select(
+                func.sum(CarInfoPo.sales_count).label("value"),
+                CarInfoPo.model_type.label("name")
+            ).select_from(CarInfoPo)
+                    .where(CarInfoPo.model_type.is_not(None))
+                    .group_by(CarInfoPo.model_type)
+                    .order_by(db.desc("value")))
+            # 创建查询条件
+            stmt = CarStatisticsMapper.builder_query_params(request, stmt)
+            result = db.session.execute(stmt).mappings().all()
+            if not result:
+                return []
+            return [StatisticsPo(value=item.value, name=item.name) for item in result]
+        except Exception as e:
+            print(f"获取汽车车型统计出错: {e}")
             return []

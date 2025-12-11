@@ -3,7 +3,8 @@ from typing import List
 
 from ruoyi_manage.domain.entity import CarInfo
 from ruoyi_manage.domain.statistics.vo import StatisticsVo
-from ruoyi_manage.domain.statistics.vo.statistics_vo import PieBarStatisticsVo, BatchLineStatisticsVo, BatchLineItem, StatisticsVo
+from ruoyi_manage.domain.statistics.vo.statistics_vo import PieBarStatisticsVo, BatchLineStatisticsVo, BatchLineItem, \
+    StatisticsVo
 from ruoyi_manage.mapper import CarStatisticsMapper, CarInfoMapper
 
 
@@ -77,21 +78,21 @@ class CarStatisticsService:
         - names：从最小到最大，步进 0.1 的评分档位字符串（如 2.5, 2.6, ...）
         - 每个维度生成一个 BatchLineItem，values 为各档位销量求和（按向下取一位小数归档）
         """
-        #综合评分
+        # 综合评分
         overall_pos = CarStatisticsMapper.get_car_score_statistics(request, "overall")
-        #外观评分
+        # 外观评分
         exterior_pos = CarStatisticsMapper.get_car_score_statistics(request, "exterior")
-        #内饰评分
+        # 内饰评分
         interior_pos = CarStatisticsMapper.get_car_score_statistics(request, "interior")
-        #空间评分
+        # 空间评分
         space_pos = CarStatisticsMapper.get_car_score_statistics(request, "space")
-        #操控评分
+        # 操控评分
         handling_pos = CarStatisticsMapper.get_car_score_statistics(request, "handling")
-        #舒适性评分
+        # 舒适性评分
         comfort_pos = CarStatisticsMapper.get_car_score_statistics(request, "comfort")
-        #动力评分
+        # 动力评分
         power_pos = CarStatisticsMapper.get_car_score_statistics(request, "power")
-        #配置评分
+        # 配置评分
         configuration_pos = CarStatisticsMapper.get_car_score_statistics(request, "configuration")
         score_series_map = {
             "综合评分": overall_pos,
@@ -162,3 +163,8 @@ class CarStatisticsService:
             batch_values.append(BatchLineItem(name=label, values=bucketize(series)))
 
         return BatchLineStatisticsVo(names=names, values=batch_values)
+
+    def get_car_model_type_statistics(self, request):
+        """汽车车型分析"""
+        pos = CarStatisticsMapper.get_car_model_type_statistics(request)
+        return [StatisticsVo(name=po.name, value=po.value) for po in pos]

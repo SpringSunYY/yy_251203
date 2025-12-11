@@ -37,3 +37,12 @@ export function carScoreStatistics(query) {
     params: query
   })
 }
+
+//汽车车型分析
+export function carModelTypeStatistics(query) {
+  return request({
+    url: '/manage/statistics/car/model/type',
+    method: 'get',
+    params: query
+  })
+}

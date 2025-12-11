@@ -24,6 +24,9 @@
     <div style="height: 80vh;width: 100%">
       <LineBatchZoomCharts :chart-data="carScore" :chart-name="carScoreName"/>
     </div>
+    <div style="height: 80vh;width: 100%">
+      <ScatterRandomCharts :chart-data="carModelType" :chart-name="carModelTypeName"/>
+    </div>
   </div>
 </template>
 
@@ -38,16 +41,18 @@ import BarPieCharts from "@/components/Echarts/BarPieCharts.vue";
 import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
 import LineBatchZoomCharts from "@/components/Echarts/LineBatchZoomCharts.vue";
 import {
-  carBrandStatistics,
+  carBrandStatistics, carModelTypeStatistics,
   carPriceStatistics,
   carSalesRankStatistics,
   carScoreStatistics
 } from "@/api/manage/statistics";
+import ScatterRandomCharts from "@/components/Echarts/ScatterRandomCharts.vue";
 
 
 export default {
   name: 'Index',
   components: {
+    ScatterRandomCharts,
     LineBatchZoomCharts,
     RelationRoundCharts,
     BarPieCharts,
@@ -67,8 +72,10 @@ export default {
       carBrandName: "汽车品牌销量分析",
       carPrice: [],
       carPriceName: "汽车价格分析",
-      carScore:{},
+      carScore: {},
       carScoreName: "汽车评分分析",
+      carModelType: [],
+      carModelTypeName: "汽车车型分析",
       query: {
         brandName: null,
         seriesName: null,
@@ -82,6 +89,7 @@ export default {
     this.getCarBrand()
     this.getCarPrice()
     this.getCarScore()
+    this.getCarModerType()
   },
   methods: {
     getSalesRankData() {
@@ -94,18 +102,23 @@ export default {
       })
     },
     getCarBrand() {
-      carBrandStatistics().then(res => {
+      carBrandStatistics(this.query).then(res => {
         this.carBrand = res.data
       })
     },
     getCarPrice() {
-      carPriceStatistics().then(res => {
+      carPriceStatistics(this.query).then(res => {
         this.carPrice = res.data
       })
     },
     getCarScore() {
-      carScoreStatistics().then(res => {
+      carScoreStatistics(this.query).then(res => {
         this.carScore = res.data
+      })
+    },
+    getCarModerType() {
+      carModelTypeStatistics(this.query).then(res => {
+        this.carModelType = res.data
       })
     }
   }
