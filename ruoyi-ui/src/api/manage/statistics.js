@@ -46,3 +46,12 @@ export function carModelTypeStatistics(query) {
     params: query
   })
 }
+
+//汽车关系
+export function carRelationStatistics(query) {
+  return request({
+    url: '/manage/statistics/car/relation',
+    method: 'get',
+    params: query
+  })
+}

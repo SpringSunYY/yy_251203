@@ -19,7 +19,7 @@
     </el-row>
 
     <div style="height: 100vh;width: 100vw">
-      <RelationRoundCharts/>
+      <RelationRoundCharts :chart-name="carRelationName" :chart-data="carRelation"/>
     </div>
     <div style="height: 80vh;width: 100%">
       <LineBatchZoomCharts :chart-data="carScore" :chart-name="carScoreName"/>
@@ -42,7 +42,7 @@ import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
 import LineBatchZoomCharts from "@/components/Echarts/LineBatchZoomCharts.vue";
 import {
   carBrandStatistics, carModelTypeStatistics,
-  carPriceStatistics,
+  carPriceStatistics, carRelationStatistics,
   carSalesRankStatistics,
   carScoreStatistics
 } from "@/api/manage/statistics";
@@ -76,6 +76,8 @@ export default {
       carScoreName: "汽车评分分析",
       carModelType: [],
       carModelTypeName: "汽车车型分析",
+      carRelation:{},
+      carRelationName: "新能源汽车关系图分析",
       query: {
         brandName: null,
         seriesName: null,
@@ -90,6 +92,7 @@ export default {
     this.getCarPrice()
     this.getCarScore()
     this.getCarModerType()
+    this.getCarRelation()
   },
   methods: {
     getSalesRankData() {
@@ -119,6 +122,11 @@ export default {
     getCarModerType() {
       carModelTypeStatistics(this.query).then(res => {
         this.carModelType = res.data
+      })
+    },
+    getCarRelation() {
+      carRelationStatistics(this.query).then(res => {
+        this.carRelation = res.data
       })
     }
   }

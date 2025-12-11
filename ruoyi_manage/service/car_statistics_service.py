@@ -4,7 +4,7 @@ from typing import List
 from ruoyi_manage.domain.entity import CarInfo
 from ruoyi_manage.domain.statistics.vo import StatisticsVo
 from ruoyi_manage.domain.statistics.vo.statistics_vo import PieBarStatisticsVo, BatchLineStatisticsVo, BatchLineItem, \
-    StatisticsVo
+    StatisticsVo, RelationStatisticsVo
 from ruoyi_manage.mapper import CarStatisticsMapper, CarInfoMapper
 
 
@@ -52,7 +52,12 @@ class CarStatisticsService:
     def get_car_price_statistics(self, request) -> List[StatisticsVo]:
         ###汽车价格分析
         # 先获取到所有的汽车
-        pos = CarInfoMapper.select_car_info_list(CarInfo())
+        car_info = CarInfo
+        car_info.brand_name = request.brand_name
+        car_info.series_name = request.series_name
+        car_info.model_type = request.model_type
+        car_info.energy_type = request.energy_type
+        pos = CarInfoMapper.select_car_info_list(car_info)
         if not pos:
             return []
         ###根据价格分类，十万以下，10万到20万，20万到30万，30万到40万，40万以上
@@ -164,7 +169,49 @@ class CarStatisticsService:
 
         return BatchLineStatisticsVo(names=names, values=batch_values)
 
-    def get_car_model_type_statistics(self, request):
+    def get_car_model_type_statistics(self, request) -> List[StatisticsVo]:
         """汽车车型分析"""
         pos = CarStatisticsMapper.get_car_model_type_statistics(request)
         return [StatisticsVo(name=po.name, value=po.value) for po in pos]
+
+    def get_car_relation_statistics(self, request) -> RelationStatisticsVo:
+        """汽车关系分析"""
+        ###首先拿到车车型
+        model_pos = CarStatisticsMapper.get_car_model_type_statistics(request)
+        if not model_pos:
+            return RelationStatisticsVo(name="汽车关系分析", value=0, tooltipText=None, children=[])
+        # 构建结果
+        # 销售总数，车型总销量
+        sales_count = 0
+        results_children = []
+        for model_po in model_pos:
+            sales_count += model_po.value
+            model_children = []
+            # 获取到品牌，每种类型
+            brand_request = request.model_copy(update={"model_type": model_po.name})
+            brand_pos = CarStatisticsMapper.get_car_brand_statistics(brand_request)
+            for brand_po in brand_pos:
+                # 获取到车系
+                series_request = brand_request.model_copy(update={"brand_name": brand_po.name})
+                series_pos = CarStatisticsMapper.get_car_sales_rank_statistics(series_request)
+                series_children = [
+                    RelationStatisticsVo(name=series_po.name, value=series_po.value, tooltipText=None, children=[])
+                    for series_po in series_pos
+                ]
+                model_children.append(
+                    RelationStatisticsVo(
+                        name=brand_po.name,
+                        value=brand_po.value,
+                        tooltipText=None,
+                        children=series_children,
+                    )
+                )
+            results_children.append(
+                RelationStatisticsVo(
+                    name=model_po.name,
+                    value=model_po.value,
+                    tooltipText=None,
+                    children=model_children,
+                )
+            )
+        return RelationStatisticsVo(name="汽车关系分析", value=sales_count, tooltipText=None, children=results_children)
