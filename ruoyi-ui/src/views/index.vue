@@ -1,31 +1,76 @@
 <template>
   <div class="dashboard-editor-container">
+    <h1 style="text-align: center;font-size: 36px;color: white;font-weight: bold">新能源汽车可视化分析</h1>
+    <!-- 搜索栏 -->
+    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" label-width="80px" class="search-form">
+      <el-form-item label="品牌名" prop="brandName">
+        <el-input
+          v-model="queryParams.brandName"
+          placeholder="请输入品牌名"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="系列名称" prop="seriesName">
+        <el-input
+          v-model="queryParams.seriesName"
+          placeholder="请输入系列名称"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="车型" prop="modelType">
+        <el-select v-model="queryParams.modelType" placeholder="请选择车型" clearable>
+          <el-option
+            v-for="dict in dict.type.manage_model_type"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="能源类型" prop="energyType">
+        <el-select v-model="queryParams.energyType" placeholder="请选择能源类型" clearable>
+          <el-option
+            v-for="dict in dict.type.manage_energy_type"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+      </el-form-item>
+    </el-form>
     <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
+      <el-col :span="12">
         <div class="chart-wrapper">
-          <PieBarCharts :chart-data="carBrand" :chart-name="carBrandName"/>
+          <ScatterRandomCharts :chart-data="carModelType" :chart-name="carModelTypeName"/>
         </div>
       </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
+      <el-col :span="12">
         <div class="chart-wrapper">
           <BarPieCharts :chart-data="carPrice" :chart-name="carPriceName"/>
         </div>
       </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
+      <el-col :span="8">
         <div class="chart-wrapper">
           <dv-scroll-ranking-board :config="salesRankConfig" style="width:500px;height:300px"/>
         </div>
       </el-col>
+      <el-col :span="16">
+        <div class="chart-wrapper">
+          <LineBatchZoomCharts :chart-data="carScore" :chart-name="carScoreName"/>
+        </div>
+      </el-col>
     </el-row>
-
+    <div style="height: 80vh;width: 100%">
+      <PieBarCharts :chart-data="carBrand" :chart-name="carBrandName"/>
+    </div>
     <div style="height: 100vh;width: 100vw">
       <RelationRoundCharts :chart-name="carRelationName" :chart-data="carRelation"/>
-    </div>
-    <div style="height: 80vh;width: 100%">
-      <LineBatchZoomCharts :chart-data="carScore" :chart-name="carScoreName"/>
-    </div>
-    <div style="height: 80vh;width: 100%">
-      <ScatterRandomCharts :chart-data="carModelType" :chart-name="carModelTypeName"/>
     </div>
   </div>
 </template>
@@ -38,23 +83,25 @@ import PieChart from './dashboard/PieChart'
 import BarChart from './dashboard/BarChart'
 import PieBarCharts from "@/components/Echarts/PieBarCharts.vue";
 import BarPieCharts from "@/components/Echarts/BarPieCharts.vue";
-import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
 import LineBatchZoomCharts from "@/components/Echarts/LineBatchZoomCharts.vue";
 import {
-  carBrandStatistics, carModelTypeStatistics,
+  carBrandStatistics,
+  carModelTypeStatistics,
   carPriceStatistics, carRelationStatistics,
   carSalesRankStatistics,
   carScoreStatistics
 } from "@/api/manage/statistics";
 import ScatterRandomCharts from "@/components/Echarts/ScatterRandomCharts.vue";
+import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
 
 
 export default {
   name: 'Index',
+  dicts: ["manage_model_type", "manage_energy_type"],
   components: {
+    RelationRoundCharts,
     ScatterRandomCharts,
     LineBatchZoomCharts,
-    RelationRoundCharts,
     BarPieCharts,
     PieBarCharts,
     PanelGroup,
@@ -67,6 +114,7 @@ export default {
     return {
       salesRankConfig: {
         data: [],
+        rowNum: 12
       },
       carBrand: [],
       carBrandName: "汽车品牌销量分析",
@@ -78,7 +126,7 @@ export default {
       carModelTypeName: "汽车车型分析",
       carRelation:{},
       carRelationName: "新能源汽车关系图分析",
-      query: {
+      queryParams: {
         brandName: null,
         seriesName: null,
         modelType: null,
@@ -87,16 +135,26 @@ export default {
     }
   },
   created() {
-    this.getSalesRankData()
-    this.getCarBrand()
-    this.getCarPrice()
-    this.getCarScore()
-    this.getCarModerType()
-    this.getCarRelation()
+    this.getStatistics()
   },
   methods: {
+    handleQuery() {
+      this.getStatistics();
+    },
+    resetQuery() {
+      this.resetForm("queryForm");
+      this.getStatistics();
+    },
+    getStatistics() {
+      this.getSalesRankData()
+      this.getCarBrand()
+      this.getCarPrice()
+      this.getCarScore()
+      this.getCarModerType()
+      this.getCarRelation()
+    },
     getSalesRankData() {
-      carSalesRankStatistics(this.query).then(res => {
+      carSalesRankStatistics(this.queryParams).then(res => {
         this.salesRankConfig = {
           ...this.salesRankConfig,
           data: res.data,
@@ -105,27 +163,27 @@ export default {
       })
     },
     getCarBrand() {
-      carBrandStatistics(this.query).then(res => {
+      carBrandStatistics(this.queryParams).then(res => {
         this.carBrand = res.data
       })
     },
     getCarPrice() {
-      carPriceStatistics(this.query).then(res => {
+      carPriceStatistics(this.queryParams).then(res => {
         this.carPrice = res.data
       })
     },
     getCarScore() {
-      carScoreStatistics(this.query).then(res => {
+      carScoreStatistics(this.queryParams).then(res => {
         this.carScore = res.data
       })
     },
     getCarModerType() {
-      carModelTypeStatistics(this.query).then(res => {
+      carModelTypeStatistics(this.queryParams).then(res => {
         this.carModelType = res.data
       })
     },
     getCarRelation() {
-      carRelationStatistics(this.query).then(res => {
+      carRelationStatistics(this.queryForm).then(res => {
         this.carRelation = res.data
       })
     }
@@ -135,21 +193,27 @@ export default {
 
 <style lang="scss" scoped>
 .dashboard-editor-container {
-  padding: 32px;
-  background-color: rgb(240, 242, 245);
+  background-image: url("../assets/images/index-bg.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  margin-top: -10px; // 抵消默认间距
+  padding-top: 10px; // 添加适当内边距
   position: relative;
 
   .chart-wrapper {
-    background: #fff;
     padding: 16px 16px 0;
     margin-bottom: 32px;
     height: 500px;
   }
-}
 
-@media (max-width: 1024px) {
-  .chart-wrapper {
-    padding: 8px;
+  .search-form {
+    padding: 10px 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.6);
   }
 }
+
 </style>

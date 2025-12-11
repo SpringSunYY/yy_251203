@@ -22,7 +22,7 @@ export default {
     },
     height: {
       type: String,
-      default: '100%' // 默认高度设为 400px，确保图表有足够空间
+      default: '100%'
     },
     // 主数据结构
     chartData: {
@@ -452,7 +452,7 @@ export default {
             }
           });
 
-          // 5. 刷新图表 (第二个参数 true 表示不合并配置，确保整个图表更新)
+          // 5. 刷新图表
           this.chart.setOption(this.option, true);
         }
       });

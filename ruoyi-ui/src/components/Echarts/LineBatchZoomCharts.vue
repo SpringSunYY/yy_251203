@@ -136,7 +136,7 @@ export default {
       default: () => colorList
     },
     // 背景颜色
-    backgroundColor: {type: String, default: '#0D2753'},
+    backgroundColor: {type: String, default: 'transparent'},
   },
   data() {
     return {

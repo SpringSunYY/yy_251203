@@ -52,7 +52,7 @@ class CarStatisticsService:
     def get_car_price_statistics(self, request) -> List[StatisticsVo]:
         ###汽车价格分析
         # 先获取到所有的汽车
-        car_info = CarInfo
+        car_info = CarInfo()
         car_info.brand_name = request.brand_name
         car_info.series_name = request.series_name
         car_info.model_type = request.model_type
