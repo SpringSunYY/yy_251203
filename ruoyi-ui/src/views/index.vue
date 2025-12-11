@@ -57,7 +57,8 @@
       </el-col>
       <el-col :span="8">
         <div class="chart-wrapper">
-          <dv-scroll-ranking-board :config="salesRankConfig" style="width:500px;height:300px"/>
+          <dv-scroll-ranking-board :config="salesRankConfig" style="width:500px;height:250px"/>
+          <LabelValueList/>
         </div>
       </el-col>
       <el-col :span="16">
@@ -93,12 +94,14 @@ import {
 } from "@/api/manage/statistics";
 import ScatterRandomCharts from "@/components/Echarts/ScatterRandomCharts.vue";
 import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
+import LabelValueList from "@/components/Echarts/LabelValueList.vue";
 
 
 export default {
   name: 'Index',
   dicts: ["manage_model_type", "manage_energy_type"],
   components: {
+    LabelValueList,
     RelationRoundCharts,
     ScatterRandomCharts,
     LineBatchZoomCharts,
@@ -114,7 +117,7 @@ export default {
     return {
       salesRankConfig: {
         data: [],
-        rowNum: 12
+        rowNum: 8
       },
       carBrand: [],
       carBrandName: "汽车品牌销量分析",
