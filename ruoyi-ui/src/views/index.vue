@@ -13,7 +13,7 @@
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <dv-scroll-ranking-board :config="data" style="width:500px;height:300px"/>
+          <dv-scroll-ranking-board :config="salesRankConfig" style="width:500px;height:300px"/>
         </div>
       </el-col>
     </el-row>
@@ -37,6 +37,7 @@ import PieBarCharts from "@/components/Echarts/PieBarCharts.vue";
 import BarPieCharts from "@/components/Echarts/BarPieCharts.vue";
 import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
 import LineBatchZoomCharts from "@/components/Echarts/LineBatchZoomCharts.vue";
+import {carSalesRank} from "@/api/manage/statistics";
 
 
 export default {
@@ -54,41 +55,30 @@ export default {
   },
   data() {
     return {
-      data:{
-        data: [
-          {
-            name: '周口',
-            value: 55
-          },
-          {
-            name: '南阳',
-            value: 120
-          },
-          {
-            name: '西峡',
-            value: 78
-          },
-          {
-            name: '驻马店',
-            value: 66
-          },
-          {
-            name: '新乡',
-            value: 80
-          },
-          {
-            name: '信阳',
-            value: 45
-          },
-          {
-            name: '漯河',
-            value: 29
-          }
-        ],
+      salesRankConfig: {
+        data: [],
       },
+      query: {
+        brandName: null,
+        seriesName: null,
+        modelType: null,
+        energyType: null,
+      }
     }
   },
+  created() {
+    this.getSalesRankData()
+  },
   methods: {
+    getSalesRankData() {
+      carSalesRank(this.query).then(res => {
+        this.salesRankConfig = {
+          ...this.salesRankConfig,
+          data: res.data,
+        }
+        console.log(this.salesRankConfig)
+      })
+    }
   }
 }
 </script>

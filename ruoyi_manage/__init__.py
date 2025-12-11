@@ -11,5 +11,6 @@ def init_app(app):
     """
     # 导入 controller 模块，自动注册所有蓝图
     # 使用 pythonModelName 生成 Python 导入路径
-    from ruoyi_manage.controller import car_info
+    from ruoyi_manage.controller import car_info, car_statistics
     app.register_blueprint(car_info)
+    app.register_blueprint(car_statistics)

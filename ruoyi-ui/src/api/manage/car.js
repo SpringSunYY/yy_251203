@@ -1,9 +1,5 @@
 import request from '@/utils/request'
 
-
-
-
-
 // 查询汽车信息列表
 export function listCar(query) {
   return request({
