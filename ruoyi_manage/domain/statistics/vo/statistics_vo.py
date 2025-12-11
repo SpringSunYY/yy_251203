@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -7,4 +9,10 @@ class StatisticsVo(BaseModel):
     """
     value: int
     name: str
-
+class   PieBarStatisticsVo(BaseModel):
+    """
+    饼状图统计对象
+    """
+    name: str
+    tooltipText: str
+    values: List[StatisticsVo]

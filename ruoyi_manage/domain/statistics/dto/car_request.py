@@ -1,4 +1,4 @@
-from typing import Optional, Annotated
+from typing import Optional, Annotated, List
 
 from pydantic import Field
 
@@ -35,4 +35,12 @@ class CarStatisticsRequest(BaseEntity):
         Field(default=None, description="能源类型"),
         VoField(query=True),
         ExcelField(name="能源类型", dict_type="manage_energy_type")
+    ]
+
+    # 系列名称列表（用于 IN 查询）
+    series_names: Annotated[
+        Optional[List[str]],
+        Field(default=None, description="系列名称列表"),
+        VoField(query=True),
+        ExcelField(name="系列名称列表")
     ]

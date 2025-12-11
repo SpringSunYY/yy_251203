@@ -3,7 +3,7 @@
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <PieBarCharts/>
+          <PieBarCharts :chart-data="carBrand" :chart-name="carBrandName"/>
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
@@ -37,7 +37,7 @@ import PieBarCharts from "@/components/Echarts/PieBarCharts.vue";
 import BarPieCharts from "@/components/Echarts/BarPieCharts.vue";
 import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
 import LineBatchZoomCharts from "@/components/Echarts/LineBatchZoomCharts.vue";
-import {carSalesRank} from "@/api/manage/statistics";
+import {carBrandStatistics, carSalesRankStatistics} from "@/api/manage/statistics";
 
 
 export default {
@@ -58,6 +58,8 @@ export default {
       salesRankConfig: {
         data: [],
       },
+      carBrand:[],
+      carBrandName:"汽车品牌销量",
       query: {
         brandName: null,
         seriesName: null,
@@ -68,17 +70,23 @@ export default {
   },
   created() {
     this.getSalesRankData()
+    this.getCarBrand()
   },
   methods: {
     getSalesRankData() {
-      carSalesRank(this.query).then(res => {
+      carSalesRankStatistics(this.query).then(res => {
         this.salesRankConfig = {
           ...this.salesRankConfig,
           data: res.data,
         }
         console.log(this.salesRankConfig)
       })
-    }
+    },
+    getCarBrand() {
+      carBrandStatistics().then(res => {
+        this.carBrand = res.data
+      })
+    },
   }
 }
 </script>

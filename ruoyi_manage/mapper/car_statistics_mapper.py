@@ -34,19 +34,49 @@ class CarStatisticsMapper:
                 func.sum(CarInfoPo.sales_count).label("value"),
                 CarInfoPo.series_name.label("name")
             ).select_from(CarInfoPo).group_by(CarInfoPo.series_name).order_by(db.desc("value"))
-            # 创建查询条件
-            if request.brand_name:
-                stmt = stmt.where(CarInfoPo.brand_name.like("%" + str(request.brand_name) + "%"))
-            if request.series_name:
-                stmt = stmt.where(CarInfoPo.series_name.like("%" + str(request.series_name) + "%"))
-            if request.model_type:
-                stmt = stmt.where(CarInfoPo.model_type == request.model_type)
-            if request.energy_type:
-                stmt = stmt.where(CarInfoPo.energy_type == request.energy_type)
+            stmt = CarStatisticsMapper.builder_query_params(request, stmt)
             result = db.session.execute(stmt).mappings().all()
             if not result:
                 return []
             return [StatisticsPo(value=item.value, name=item.name) for item in result]
         except Exception as e:
             print(f"获取汽车销售数据排行出错: {e}")
+            return []
+
+    @staticmethod
+    def builder_query_params(request, stmt):
+        # 创建查询条件
+        if request.brand_name:
+            stmt = stmt.where(CarInfoPo.brand_name == request.brand_name)
+        if request.series_name:
+            stmt = stmt.where(CarInfoPo.series_name == request.series_name)
+        if request.model_type:
+            stmt = stmt.where(CarInfoPo.model_type == request.model_type)
+        if request.energy_type:
+            stmt = stmt.where(CarInfoPo.energy_type == request.energy_type)
+        return stmt
+
+    @staticmethod
+    def get_car_brand_statistics(request, limit=10) -> List[StatisticsPo]:
+        """
+        获取汽车品牌统计
+        select sum(sales_count) as value, brand_name as name
+        from tb_car_info
+        group by name
+        order by value desc
+        limit 10;
+        """
+        try:
+            stmt = select(
+                func.sum(CarInfoPo.sales_count).label("value"),
+                CarInfoPo.brand_name.label("name")
+            ).select_from(CarInfoPo).group_by(CarInfoPo.brand_name).order_by(db.desc("value")).limit(limit)
+            # 创建查询条件
+            stmt = CarStatisticsMapper.builder_query_params(request, stmt)
+            result = db.session.execute(stmt).mappings().all()
+            if not result:
+                return []
+            return [StatisticsPo(value=item.value, name=item.name) for item in result]
+        except Exception as e:
+            print(f"获取汽车品牌统计出错: {e}")
             return []

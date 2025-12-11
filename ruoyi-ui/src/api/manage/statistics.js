@@ -1,9 +1,19 @@
 import request from '@/utils/request'
 
 //汽车销量排行
-export function carSalesRank(query) {
+export function carSalesRankStatistics(query) {
   return request({
     url: '/manage/statistics/car/sales/rank',
+    method: 'get',
+    params: query
+  })
+}
+
+
+//获取汽车品牌统计 /car/brand
+export function carBrandStatistics(query) {
+  return request({
+    url: '/manage/statistics/car/brand',
     method: 'get',
     params: query
   })

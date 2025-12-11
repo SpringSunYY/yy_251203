@@ -254,8 +254,8 @@ export default {
               const percent = (params.value / grandTotal * 100).toFixed(2);
 
               // 统一使用 <br> 换行
-              return `${params.name}<br/>
-                      数值: ${params.value}/${grandTotal} (${percent}%)<br/>
+              return `${params.name}:
+                      ${params.value}/${grandTotal} (${percent}%)<br/>
                       ${rawTooltipText.replace(/\n/g, '<br/>')}`;
             }
 
@@ -267,12 +267,18 @@ export default {
               const barTotal = currentBarData.values.reduce((sum, bar) => sum + bar.value, 0);
 
               const rawTooltipText = barItem.tooltipText;
-
-              // 统一使用 <br> 换行
-              return `${currentBarData.name}<br/>
+              if (rawTooltipText) {
+                // 统一使用 <br> 换行
+                return `${currentBarData.name}<br/>
                       ${barItem.name}：${barItem.value}<br/>
                       总数: ${barTotal}<br/>
                       ${rawTooltipText.replace(/\n/g, '<br/>')}`;
+              } else {
+                return `${currentBarData.name}<br/>
+                      ${barItem.name}：${barItem.value}<br/>
+                      总数: ${barTotal}`;
+              }
+
             }
             // 默认返回
             return params.name + ': ' + params.value;

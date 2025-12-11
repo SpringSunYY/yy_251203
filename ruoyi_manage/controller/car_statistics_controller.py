@@ -18,3 +18,14 @@ car_statistics_service = CarStatisticsService()
 def get_car_sales_rank_statistics(request: CarStatisticsRequest):
     # 直接传递 request 参数，无需转换
     return AjaxResponse.from_success(data=car_statistics_service.get_car_sales_rank_statistics(request))
+
+
+###汽车品牌统计
+"""汽车品牌统计"""
+@gen.route('/car/brand', methods=['GET'])
+@QueryValidator()
+@PreAuthorize(HasPerm('manage:car:statistics'))
+@JsonSerializer()
+def get_car_brand_statistics(request: CarStatisticsRequest):
+    # 直接传递 request 参数，无需转换
+    return AjaxResponse.from_success(data=car_statistics_service.get_car_brand_statistics(request))
