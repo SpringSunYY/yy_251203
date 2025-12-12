@@ -130,6 +130,8 @@ class CarInfoService:
     def update_or_insert_car(self, car, is_update):
         display_value = car
         display_value = getattr(car, "car_id", display_value)
+        print(car)
+        print(car.market_time)
         # 格式化时间格式
         if car.market_time:
             car.market_time = DateUtil.format_datetime(car.market_time)
@@ -148,10 +150,55 @@ class CarInfoService:
             result = CarInfoMapper.insert_car_info(car)
         return display_value, result
 
-    def auto_reptile_car_info(self, max_pages, types=None, is_update: bool = False):
+    def auto_reptile_car_info(self, max_pages=5000, types=None, is_update: bool = True):
         """
         爬取懂车帝信息
         """
-        car_list = CarReptileUtil.crawl(max_pages, types)
+        car_crawl_list = CarReptileUtil.crawl(max_pages, types)
+        # crawl 返回的是按照 EXCEL_HEADERS 顺序的 tuple，这里按索引映射到 CarInfo
+        car_list = []
+        for item in car_crawl_list:
+            (
+                brand_name,
+                image_url,
+                series_name,
+                series_id,
+                dealer_price,
+                max_price,
+                min_price,
+                sales_count,
+                model_type,
+                energy_type,
+                market_time,
+                overall,
+                exterior,
+                interior,
+                space,
+                handling,
+                comfort,
+                power,
+                configuration,
+            ) = item
+            car = CarInfo()
+            car.brand_name = brand_name
+            car.image = image_url
+            car.series_name = series_name
+            car.series_id = series_id
+            car.dealer_price = dealer_price
+            car.max_price = max_price
+            car.min_price = min_price
+            car.sales_count = sales_count
+            car.model_type = model_type
+            car.energy_type = energy_type
+            car.market_time = market_time
+            car.overall = overall
+            car.exterior = exterior
+            car.interior = interior
+            car.space = space
+            car.handling = handling
+            car.comfort = comfort
+            car.power = power
+            car.configuration = configuration
+            car_list.append(car)
         for car in car_list:
             display_value, result = self.update_or_insert_car(car, is_update)

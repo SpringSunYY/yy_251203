@@ -2,7 +2,6 @@ from decimal import Decimal, InvalidOperation, ROUND_CEILING, ROUND_FLOOR
 from typing import List
 
 from ruoyi_manage.domain.entity import CarInfo
-from ruoyi_manage.domain.statistics.vo import StatisticsVo
 from ruoyi_manage.domain.statistics.vo.statistics_vo import PieBarStatisticsVo, BatchLineStatisticsVo, BatchLineItem, \
     StatisticsVo, RelationStatisticsVo
 from ruoyi_manage.mapper import CarStatisticsMapper, CarInfoMapper

@@ -7,6 +7,7 @@ from typing import List, Optional
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, \
     EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED, EVENT_JOB_REMOVED, JobEvent
 from flask import Flask
+import importlib
 
 from ruoyi_common.base.signal import app_completed
 from ruoyi_common.exception import ServiceException
@@ -14,7 +15,7 @@ from ruoyi_common.sqlalchemy.transaction import Transactional
 from ruoyi_apscheduler.constant import ScheduleStatus
 from ruoyi_apscheduler.domain.entity import SysJob, SysJobLog
 from ruoyi_apscheduler.mapper.job import SysJobMapper
-from ruoyi_apscheduler.util import ScheduleUtil
+from ruoyi_apscheduler.util import ScheduleUtil, check_method_importable
 from ruoyi_apscheduler.service.job_log import SysJobLogService
 from ruoyi_admin.ext import db
 from .. import reg,scheduler
@@ -204,7 +205,26 @@ class SysJobService:
         Args:
             job (SysJob): 任务信息
         """
-        ScheduleUtil.reschedule_job(scheduler,job)
+        # 先从数据库取全量信息，避免缺失 job_group 等导致 job_key 不匹配
+        db_job = cls.select_job_by_id(job.job_id)
+        if not db_job:
+            raise ServiceException("任务不存在")
+        print(f"[job_run] 请求立即执行，job_key={db_job.job_key}, invoke_target={db_job.invoke_target}")
+
+        # 直接调用目标函数，确保“执行一次”必定执行
+        module_name, method_name, args, kwargs = ScheduleUtil.parse_target(db_job.invoke_target)
+        if not check_method_importable(module_name, method_name):
+            raise ServiceException(f"方法不存在: {db_job.invoke_target}")
+        func = getattr(importlib.import_module(module_name), method_name)
+        try:
+            func(*args, **kwargs)
+        except Exception as e:
+            raise ServiceException(f"立即执行任务失败: {e}")
+
+        # 维持调度器中的任务（下一次仍按 cron 跑）
+        sched_job = scheduler.get_job(db_job.job_key)
+        if sched_job is None:
+            ScheduleUtil.create_schedule_job(scheduler, db_job)
 
 
 
