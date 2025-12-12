@@ -47,7 +47,7 @@
     <el-row :gutter="32">
       <el-col :span="12">
         <div class="chart-wrapper">
-          <ScatterRandomCharts :chart-data="carModelType" :chart-name="carModelTypeName"/>
+          <ScatterRandomCharts :chart-data="carModelType" :chartTitle="carModelTypeName"/>
         </div>
       </el-col>
       <el-col :span="12">

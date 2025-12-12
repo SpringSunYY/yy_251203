@@ -176,10 +176,10 @@ export default {
           shape: 'circle',
           name: {
             textStyle: {
-              color: '#fff', fontSize: 16,
+              color: '#ffce00', fontSize: 16,
               rich: {
                 valueStyle: {fontSize: 14, color: '#4BFFFC'},
-                normal: {fontSize: 16, color: '#fff'}
+                normal: {fontSize: 16, color: '#4BFFFC'}
               }
             },
             formatter: (value) => {

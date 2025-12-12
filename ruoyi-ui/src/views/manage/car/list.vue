@@ -100,7 +100,7 @@
 
               <div class=" scores" v-if="builderChartData(item).length>1">
                 <RadarTooltipCharts :chart-name="item.overall" :max="5" :chart-data="builderChartData(item)"
-                                    background-color="rgba(50,50,50,0.3)"/>
+                                   />
               </div>
 
               <div class="detail-link">
