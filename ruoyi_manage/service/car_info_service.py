@@ -10,6 +10,8 @@ from ruoyi_common.utils import DateUtil
 from ruoyi_common.utils.base import LogUtil
 from ruoyi_manage.domain.entity import CarInfo
 from ruoyi_manage.mapper.car_info_mapper import CarInfoMapper
+from ruoyi_manage.utils.reptile_util import CarReptileUtil
+
 
 class CarInfoService:
     """汽车信息服务类"""
@@ -26,7 +28,6 @@ class CarInfoService:
         """
         return CarInfoMapper.select_car_info_list(car)
 
-
     def select_car_info_by_id(self, car_id: int) -> CarInfo:
         """
         根据ID查询汽车信息
@@ -39,7 +40,6 @@ class CarInfoService:
         """
         return CarInfoMapper.select_car_info_by_id(car_id)
 
-
     def insert_car_info(self, car: CarInfo) -> int:
         """
         新增汽车信息
@@ -50,8 +50,11 @@ class CarInfoService:
         Returns:
             int: 插入的记录数
         """
+        ###先查询series_id是否存在
+        if car.series_id:
+            if CarInfoMapper.select_car_info_by_series_id(car.series_id):
+                raise ServiceException("此车系已存在")
         return CarInfoMapper.insert_car_info(car)
-
 
     def update_car_info(self, car: CarInfo) -> int:
         """
@@ -63,9 +66,12 @@ class CarInfoService:
         Returns:
             int: 更新的记录数
         """
+        ###查询series_id，如果存在但不是以前的，则报错，如果不存在则更新
+        if car.series_id:
+            car_db = CarInfoMapper.select_car_info_by_series_id(car.series_id)
+            if car_db and car_db.car_id != car.car_id:
+                raise ServiceException("此车系已存在")
         return CarInfoMapper.update_car_info(car)
-
-
 
     def delete_car_info_by_ids(self, ids: List[int]) -> int:
         """
@@ -78,7 +84,6 @@ class CarInfoService:
             int: 删除的记录数
         """
         return CarInfoMapper.delete_car_info_by_ids(ids)
-
 
     def import_car_info(self, car_list: List[CarInfo], is_update: bool = False) -> str:
         """
@@ -101,26 +106,7 @@ class CarInfoService:
 
         for car in car_list:
             try:
-                display_value = car
-
-                display_value = getattr(car, "car_id", display_value)
-                # 格式化时间格式
-                if car.market_time:
-                    car.market_time = DateUtil.format_datetime(car.market_time)
-                    print(car.market_time)
-                existing = None
-                if car.car_id is not None:
-                    existing = CarInfoMapper.select_car_info_by_id(car.car_id)
-                if existing:
-                    if is_update:
-                        result = CarInfoMapper.update_car_info(car)
-                    else:
-                        fail_count += 1
-                        fail_msg += f"<br/> 第{fail_count}条数据，已存在：{display_value}"
-                        continue
-                else:
-                    result = CarInfoMapper.insert_car_info(car)
-
+                display_value, result = self.update_or_insert_car(car, is_update)
                 if result > 0:
                     success_count += 1
                     success_msg += f"<br/> 第{success_count}条数据，操作成功：{display_value}"
@@ -140,3 +126,32 @@ class CarInfoService:
             raise ServiceException(fail_msg)
         success_msg = f"恭喜您，数据已全部导入成功！共 {success_count} 条，数据如下：" + success_msg
         return success_msg
+
+    def update_or_insert_car(self, car, is_update):
+        display_value = car
+        display_value = getattr(car, "car_id", display_value)
+        # 格式化时间格式
+        if car.market_time:
+            car.market_time = DateUtil.format_datetime(car.market_time)
+            print(car.market_time)
+        result = 0
+        if is_update and car.series_id is not None:
+            existing = CarInfoMapper.select_car_info_by_series_id(car.series_id)
+            if existing:
+                # 复用已有主键，执行更新
+                car.car_id = existing.car_id
+                result = CarInfoMapper.update_car_info(car)
+            else:
+                # 更新模式下若不存在则插入
+                result = CarInfoMapper.insert_car_info(car)
+        else:
+            result = CarInfoMapper.insert_car_info(car)
+        return display_value, result
+
+    def auto_reptile_car_info(self, max_pages, types=None, is_update: bool = False):
+        """
+        爬取懂车帝信息
+        """
+        car_list = CarReptileUtil.crawl(max_pages, types)
+        for car in car_list:
+            display_value, result = self.update_or_insert_car(car, is_update)

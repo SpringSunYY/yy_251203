@@ -223,12 +223,9 @@
 
     <!-- 添加或修改汽车信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="90px">
         <el-form-item label="品牌名" prop="brandName">
           <el-input v-model="form.brandName" placeholder="请输入品牌名"/>
-        </el-form-item>
-        <el-form-item label="封面" prop="image">
-          <image-upload v-model="form.image"/>
         </el-form-item>
         <el-form-item label="系列名称" prop="seriesName">
           <el-input v-model="form.seriesName" placeholder="请输入系列名称"/>
@@ -277,28 +274,28 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="综合评分" prop="overall">
-          <el-input v-model="form.overall" placeholder="请输入综合评分"/>
+          <el-input-number :precision="2" v-model="form.overall" placeholder="请输入综合评分"/>
         </el-form-item>
         <el-form-item label="外观评分" prop="exterior">
-          <el-input v-model="form.exterior" placeholder="请输入外观评分"/>
+          <el-input-number :precision="2" v-model="form.exterior" placeholder="请输入外观评分"/>
         </el-form-item>
         <el-form-item label="内饰评分" prop="interior">
-          <el-input v-model="form.interior" placeholder="请输入内饰评分"/>
+          <el-input-number :precision="2" v-model="form.interior" placeholder="请输入内饰评分"/>
         </el-form-item>
         <el-form-item label="空间评分" prop="space">
-          <el-input v-model="form.space" placeholder="请输入空间评分"/>
+          <el-input-number :precision="2" v-model="form.space" placeholder="请输入空间评分"/>
         </el-form-item>
         <el-form-item label="操控评分" prop="handling">
-          <el-input v-model="form.handling" placeholder="请输入操控评分"/>
+          <el-input-number :precision="2" v-model="form.handling" placeholder="请输入操控评分"/>
         </el-form-item>
         <el-form-item label="舒适性评分" prop="comfort">
-          <el-input v-model="form.comfort" placeholder="请输入舒适性评分"/>
+          <el-input-number :precision="2" v-model="form.comfort" placeholder="请输入舒适性评分"/>
         </el-form-item>
         <el-form-item label="动力评分" prop="power">
-          <el-input v-model="form.power" placeholder="请输入动力评分"/>
+          <el-input-number :precision="2" v-model="form.power" placeholder="请输入动力评分"/>
         </el-form-item>
         <el-form-item label="配置评分" prop="configuration">
-          <el-input v-model="form.configuration" placeholder="请输入配置评分"/>
+          <el-input-number :precision="2" v-model="form.configuration" placeholder="请输入配置评分"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -369,7 +366,7 @@ export default {
       carList: [],
       // 表格列信息
       columns: [
-        {key: 0, label: '编号', visible: true},
+        {key: 0, label: '编号', visible: false},
         {key: 1, label: '品牌名', visible: true},
         {key: 2, label: '封面', visible: true},
         {key: 3, label: '系列名称', visible: true},
@@ -382,13 +379,13 @@ export default {
         {key: 10, label: '能源类型', visible: true},
         {key: 11, label: '上市时间', visible: true},
         {key: 12, label: '综合评分', visible: true},
-        {key: 13, label: '外观评分', visible: true},
-        {key: 14, label: '内饰评分', visible: true},
-        {key: 15, label: '空间评分', visible: true},
-        {key: 16, label: '操控评分', visible: true},
-        {key: 17, label: '舒适性评分', visible: true},
-        {key: 18, label: '动力评分', visible: true},
-        {key: 19, label: '配置评分', visible: true}
+        {key: 13, label: '外观评分', visible: false},
+        {key: 14, label: '内饰评分', visible: false},
+        {key: 15, label: '空间评分', visible: false},
+        {key: 16, label: '操控评分', visible: false},
+        {key: 17, label: '舒适性评分', visible: false},
+        {key: 18, label: '动力评分', visible: false},
+        {key: 19, label: '配置评分', visible: false}
       ],
       // 弹出层标题
       title: "",

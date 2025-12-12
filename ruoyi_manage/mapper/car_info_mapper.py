@@ -91,6 +91,20 @@ class CarInfoMapper:
             print(f"根据ID查询汽车信息出错: {e}")
             return None
 
+    @staticmethod
+    def select_car_info_by_series_id(series_id: int)->CarInfo:
+        """
+        根据系列ID查询汽车信息
+        Args:
+            series_id (int): 系列ID
+        """
+        try:
+            stmt = select(CarInfoPo).where(CarInfoPo.series_id == series_id)
+            result = db.session.execute(stmt).scalar_one_or_none()
+            return CarInfo.model_validate(result) if result else None
+        except Exception as e:
+            print(f"根据系列ID查询汽车信息出错: {e}")
+            return None
 
     @staticmethod
     def insert_car_info(car: CarInfo) -> int:
