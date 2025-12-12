@@ -440,8 +440,8 @@ export default {
         status: "0",
         menuIds: [],
         deptIds: [],
-        menuCheckStrictly: true,
-        deptCheckStrictly: true,
+        menuCheckStrictly: false,
+        deptCheckStrictly: false,
         remark: undefined
       };
       this.resetForm("form");

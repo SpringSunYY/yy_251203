@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from flask import flash
+from pydantic.experimental.pipeline import transform
 
 from ruoyi_common.domain.vo import RegisterBody
+from ruoyi_common.sqlalchemy.transaction import Transactional
 from ruoyi_common.utils import security_util as SecurityUtil
 from ruoyi_common.constant import Constants, UserConstants
 from ruoyi_common.exception import CaptchaException, CaptchaExpireException, NotContentException
@@ -10,11 +12,12 @@ from ruoyi_common.domain.entity import SysUser
 from ruoyi_system.service import SysUserService, SysConfigService
 from ruoyi_system.mapper import SysUserMapper
 from ruoyi_admin.ext import redis_cache
-
+from ruoyi_admin.ext import db
 
 class RegisterService:
 
     @classmethod
+    @Transactional(db.session)
     def register(cls, body: RegisterBody) -> str:
         """
         注册用户
@@ -51,6 +54,8 @@ class RegisterService:
                 password=SecurityUtil.encrypt_password(body.password.get_secret_value())
             )
             reg_flag = SysUserService.register_user(sys_user)
+            print(sys_user.user_id)
+            SysUserService.insert_user_role(sys_user.user_id, [2])
             if not reg_flag:
                 msg = "Registration failed, please contact system administrator"
             else:
