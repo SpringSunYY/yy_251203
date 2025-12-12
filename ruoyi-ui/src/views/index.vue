@@ -57,8 +57,8 @@
       </el-col>
       <el-col :span="8">
         <div class="chart-wrapper">
+          <LabelValueList :data-list="carCount"/>
           <dv-scroll-ranking-board :config="salesRankConfig" style="width:500px;height:250px"/>
-          <LabelValueList/>
         </div>
       </el-col>
       <el-col :span="16">
@@ -86,7 +86,7 @@ import PieBarCharts from "@/components/Echarts/PieBarCharts.vue";
 import BarPieCharts from "@/components/Echarts/BarPieCharts.vue";
 import LineBatchZoomCharts from "@/components/Echarts/LineBatchZoomCharts.vue";
 import {
-  carBrandStatistics,
+  carBrandStatistics, carCountStatistics,
   carModelTypeStatistics,
   carPriceStatistics, carRelationStatistics,
   carSalesRankStatistics,
@@ -95,6 +95,7 @@ import {
 import ScatterRandomCharts from "@/components/Echarts/ScatterRandomCharts.vue";
 import RelationRoundCharts from "@/components/Echarts/RelationRoundCharts.vue";
 import LabelValueList from "@/components/Echarts/LabelValueList.vue";
+import {parseTime} from "@/utils/ruoyi";
 
 
 export default {
@@ -127,8 +128,9 @@ export default {
       carScoreName: "汽车评分分析",
       carModelType: [],
       carModelTypeName: "汽车车型分析",
-      carRelation:{},
+      carRelation: {},
       carRelationName: "新能源汽车关系图分析",
+      carCount: [],
       queryParams: {
         brandName: null,
         seriesName: null,
@@ -155,6 +157,28 @@ export default {
       this.getCarScore()
       this.getCarModerType()
       this.getCarRelation()
+      this.getCarCount()
+    },
+    getCarCount() {
+      carCountStatistics(this.queryParams).then(res => {
+        if (res.code !== 200 || !res.data) {
+          return
+        }
+        const now = new Date();
+        var data = []
+        data.push({
+          label: "查询时间",
+          //获取当前时间年月日时分
+          value: parseTime(now, "{y}-{m}-{d}"),
+        })
+        res.data.forEach(item => {
+          data.push({
+            label: item.name,
+            value: item.value,
+          })
+        })
+        this.carCount = data
+      })
     },
     getSalesRankData() {
       carSalesRankStatistics(this.queryParams).then(res => {

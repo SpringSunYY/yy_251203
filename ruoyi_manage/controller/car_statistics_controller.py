@@ -70,3 +70,14 @@ def get_car_model_type_statistics(request: CarStatisticsRequest):
 def get_car_relation_statistics(request: CarStatisticsRequest):
     # 直接传递 request 参数，无需转换
     return AjaxResponse.from_success(data=car_statistics_service.get_car_relation_statistics(request))
+
+
+###汽车各种总数
+"""汽车各种总数"""
+@gen.route('/car/count', methods=['GET'])
+@QueryValidator()
+@PreAuthorize(HasPerm('manage:car:statistics'))
+@JsonSerializer()
+def get_car_count_statistics(request: CarStatisticsRequest):
+    # 直接传递 request 参数，无需转换
+    return AjaxResponse.from_success(data=car_statistics_service.get_car_count_statistics(request))

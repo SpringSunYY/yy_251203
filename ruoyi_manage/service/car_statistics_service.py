@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation, ROUND_CEILING, ROUND_FLOOR
 from typing import List
 
+from ruoyi_common.utils import DateUtil
 from ruoyi_manage.domain.entity import CarInfo
 from ruoyi_manage.domain.statistics.vo.statistics_vo import PieBarStatisticsVo, BatchLineStatisticsVo, BatchLineItem, \
     StatisticsVo, RelationStatisticsVo
@@ -214,3 +215,20 @@ class CarStatisticsService:
                 )
             )
         return RelationStatisticsVo(name="汽车关系分析", value=sales_count, tooltipText=None, children=results_children)
+
+    def get_car_count_statistics(self, request) -> List[StatisticsVo]:
+        vos = []
+        # 汽车NO1
+        series_car_pos = CarStatisticsMapper.get_car_sales_rank_statistics(request, limit=1000)
+        # 汽车系列数
+        vos.append(StatisticsVo(name="汽车系列数", value=len(series_car_pos)))
+        # 汽车品牌
+        brand_pos = CarStatisticsMapper.get_car_brand_statistics(request, 1000)
+        # 汽车品牌数
+        vos.append(StatisticsVo(name="汽车品牌数", value=len(brand_pos)))
+        # 总销量
+        sales_count = CarStatisticsMapper.get_car_sales_count_statistics(request)
+        vos.append(StatisticsVo(name="总销量", value=sales_count))
+        vos.append(StatisticsVo(name="系列：" + series_car_pos[0].name, value=series_car_pos[0].value))
+        vos.append(StatisticsVo(name="品牌：" + brand_pos[0].name, value=brand_pos[0].value))
+        return vos

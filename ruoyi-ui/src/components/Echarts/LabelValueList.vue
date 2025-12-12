@@ -9,7 +9,6 @@
       class="grid-item"
     >
       <span class="item-label">{{ item.label }}</span>
-
       <span class="item-value">{{ item.value }}</span>
     </div>
   </div>
@@ -22,29 +21,29 @@ export default {
     // 接受一个数组，每个元素包含 label 和 value
     dataList: {
       type: Array,
-      required: false, // 改为非必填，允许使用默认数据
+      required: false,
       default: () => [
         // --- 默认数据 (共 6 项，配合 cols: 3, 默认显示 2 行) ---
-        { label: '核心指标 A', value: '1,234' },
-        { label: '核心指标 B', value: '98.7%' },
-        { label: '核心指标 C', value: '45.6万' },
-        { label: '核心指标 D', value: '567' },
-        { label: '核心指标 E', value: '25.3T' },
-        { label: '核心指标 F', value: 'A级' },
+        {label: '核心指标 A', value: '1,234'},
+        {label: '核心指标 B', value: '98.7%'},
+        {label: '核心指标 C', value: '45.6万'},
+        {label: '核心指标 D', value: '567'},
+        {label: '核心指标 E', value: '25.3T'},
+        {label: '核心指标 F', value: 'A级'},
         // --------------------------------------------------
       ]
     },
     // 定义网格的列数 (默认设置为 3)
     cols: {
       type: Number,
-      required: false, // 改为非必填
-      default: 3, // 默认 3 列，配合 6 个数据项，显示两行
+      required: false,
+      default: 3,
       validator: val => val > 0
     },
     // 网格间隙 (Grid Gap)
     gap: {
       type: String,
-      default: '20px'
+      default: '1.2vw' // 替换为 vw
     }
   },
   computed: {
@@ -60,11 +59,11 @@ export default {
 </script>
 
 <style scoped>
-/* 样式部分保持不变，沿用上一轮提供的美观大屏样式 */
+/* 核心：使用 vw 单位实现自适应 */
 
 .label-value-grid-container {
   display: grid;
-  padding: 20px;
+  padding: 1vw; /* 替换为 vw */
   background-color: rgba(0, 50, 100, 0.15);
   border-radius: 8px;
   border: 1px solid rgba(0, 150, 255, 0.3);
@@ -75,9 +74,9 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: 15px;
+  padding: 0.8vw; /* 替换为 vw */
   background-color: rgba(255, 255, 255, 0.05);
-  border-left: 3px solid #00aaff;
+  border-left: 0.2vw solid #00aaff; /* 替换为 vw */
   border-radius: 4px;
   transition: all 0.3s ease;
 }
@@ -89,13 +88,13 @@ export default {
 }
 
 .item-label {
-  font-size: 14px;
+  font-size: 0.75vw; /* 替换为 vw */
   color: #a0a0a0;
-  margin-bottom: 5px;
+  margin-bottom: 0.25vw; /* 替换为 vw */
 }
 
 .item-value {
-  font-size: 28px;
+  font-size: 1.5vw; /* 替换为 vw */
   color: #00ffc0;
   font-weight: 700;
   text-shadow: 0 0 8px rgba(0, 255, 192, 0.6);

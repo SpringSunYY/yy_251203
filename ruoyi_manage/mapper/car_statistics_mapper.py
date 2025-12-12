@@ -16,7 +16,7 @@ class CarStatisticsMapper:
     """获取汽车销售数据排行"""
 
     @staticmethod
-    def get_car_sales_rank_statistics(request: CarStatisticsRequest) -> List[StatisticsPo]:
+    def get_car_sales_rank_statistics(request: CarStatisticsRequest, limit=1000) -> List[StatisticsPo]:
         """
         获取汽车销售数据排行
 
@@ -34,7 +34,7 @@ class CarStatisticsMapper:
             stmt = select(
                 func.sum(CarInfoPo.sales_count).label("value"),
                 CarInfoPo.series_name.label("name")
-            ).select_from(CarInfoPo).group_by(CarInfoPo.series_name).order_by(db.desc("value"))
+            ).select_from(CarInfoPo).group_by(CarInfoPo.series_name).order_by(db.desc("value")).limit(limit)
             stmt = CarStatisticsMapper.builder_query_params(request, stmt)
             result = db.session.execute(stmt).mappings().all()
             if not result:
@@ -153,3 +153,20 @@ class CarStatisticsMapper:
         except Exception as e:
             print(f"获取汽车车型统计出错: {e}")
             return []
+
+    @staticmethod
+    def get_car_sales_count_statistics(request)->int:
+        """
+        获取汽车总销量统计
+        select sum(sales_count) as value
+        from tb_car_info
+        """
+        try:
+            stmt = select(func.sum(CarInfoPo.sales_count).label("value"))
+            # 创建查询条件
+            stmt = CarStatisticsMapper.builder_query_params(request, stmt)
+            result = db.session.execute(stmt).mappings().first()
+            return result.value
+        except Exception as e:
+            print(f"获取汽车总销量统计出错: {e}")
+            return 0

@@ -55,3 +55,12 @@ export function carRelationStatistics(query) {
     params: query
   })
 }
+
+//汽车各种总数
+export function carCountStatistics(query) {
+  return request({
+    url: '/manage/statistics/car/count',
+    method: 'get',
+    params: query
+  })
+}
