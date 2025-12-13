@@ -157,6 +157,7 @@ export default {
           name: item.name,
           value: total,
           tooltipText: item.tooltipText,
+          barTotal: total,
           itemStyle: {
             color: this.piecolor[index] || this.defaultColor[index % this.defaultColor.length]
           }
@@ -262,7 +263,7 @@ export default {
             // 4. 柱状图 (Bar) 的 Tooltip 逻辑
             else if (params.seriesType === 'bar') {
 
-              const currentBarData = chartData[currentIndex];
+              const currentBarData = chartData[this.currentIndex];
               const barItem = currentBarData.values[params.dataIndex];
               const barTotal = currentBarData.values.reduce((sum, bar) => sum + bar.value, 0);
 
@@ -422,7 +423,6 @@ export default {
         if (params.seriesType === 'pie') {
           // 更新当前聚焦索引
           this.currentIndex = params.dataIndex;
-
           const newIndex = this.currentIndex
           const newBarData = this.chartData[newIndex]
           const newColor = this.piecolor[newIndex]
